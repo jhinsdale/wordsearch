@@ -1,0 +1,2398 @@
+<!doctype html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Word Search Generator</title>
+  <meta name="author" content="John K. Hinsdale">
+  <meta name="description" content="Made with Word Search Generator by John K. Hinsdale of Princeton Junction, NJ USA.">
+  <link rel="canonical" href="https://jhinsdale.github.io/wordsearch/wordsearch.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Word Search Generator">
+  <meta property="og:title" content="Word Search Generator">
+  <meta property="og:description" content="Made with Word Search Generator by John K. Hinsdale of Princeton Junction, NJ USA.">
+  <meta property="og:url" content="https://jhinsdale.github.io/wordsearch/wordsearch.html">
+  <meta property="og:image" content="https://jhinsdale.github.io/wordsearch/wordsearch.png">
+  <meta property="og:image:url" content="https://jhinsdale.github.io/wordsearch/wordsearch.png">
+  <meta property="og:image:secure_url" content="https://jhinsdale.github.io/wordsearch/wordsearch.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:image:alt" content="Word Search Generator showing a US Cities puzzle with completed words circled in green.">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Word Search Generator">
+  <meta name="twitter:description" content="Made with Word Search Generator by John K. Hinsdale of Princeton Junction, NJ USA.">
+  <meta name="twitter:image" content="https://jhinsdale.github.io/wordsearch/wordsearch.png">
+  <meta name="twitter:image:alt" content="Word Search Generator showing a US Cities puzzle with completed words circled in green.">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211f;
+      --muted: #66726f;
+      --paper: #f5f1e8;
+      --panel: #fffdf7;
+      --line: #d8d3c7;
+      --accent: #de5d3b;
+      --accent-dark: #a83921;
+      --found: #f2c94c;
+      --select: #8bd3c7;
+      --shadow: 0 22px 55px rgb(40 34 24 / 12%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 12%, rgb(222 93 59 / 10%), transparent 28rem),
+        radial-gradient(circle at 86% 86%, rgb(28 122 112 / 9%), transparent 30rem),
+        var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    button { color: inherit; }
+
+    .shell {
+      width: min(1600px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 20px 0 40px;
+    }
+
+    .masthead {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .masthead-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-button {
+      display: grid;
+      width: 44px;
+      min-height: 44px;
+      padding: 0;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--panel);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .info-button:hover { color: white; background: var(--ink); }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(24px, 4vw, 31px);
+      font-weight: 700;
+      letter-spacing: -.025em;
+    }
+
+    .panel {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .author-panel {
+      max-width: 760px;
+      margin: 0;
+      overflow: visible;
+    }
+
+    .form-side { padding: 0; }
+    .share-side { padding: 14px 0 0; }
+
+    .share-side {
+      background: transparent;
+    }
+
+    .section-rule { margin: 22px 0 0; border: 0; border-top: 1px solid var(--line); }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .dimensions {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 16px;
+    }
+
+    .inline-field, .dimension-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .inline-field label, .dimension-field label { flex: none; margin: 0; }
+    .inline-field input { flex: 1; min-width: 0; }
+    .dimensions .dimension-field input { width: 72px; }
+
+    .dimension-auto-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .times {
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    label, .field-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input[type="number"], input[type="text"], textarea {
+      width: 100%;
+      border: 1px solid #bab5aa;
+      border-radius: 11px;
+      outline: none;
+      background: #fffefa;
+      color: var(--ink);
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    input[type="number"], input[type="text"] { height: 40px; padding: 0 11px; }
+    input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { margin: 0; -webkit-appearance: none; }
+    textarea {
+      min-width: 240px;
+      max-width: calc(100vw - 48px);
+      min-height: 112px;
+      padding: 11px;
+      line-height: 1.45;
+      overflow-y: auto;
+      resize: both;
+    }
+
+    .textarea-heading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .textarea-heading label { margin: 0; }
+
+    .clear-textarea {
+      display: grid;
+      width: 27px;
+      height: 27px;
+      place-items: center;
+      padding: 0;
+      border: 1px solid #bab5aa;
+      border-radius: 7px;
+      background: #fffefa;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .clear-textarea:hover { color: var(--ink); border-color: var(--ink); }
+
+    input:focus, textarea:focus {
+      border-color: #167064;
+      box-shadow: 0 0 0 3px rgb(22 112 100 / 15%);
+    }
+
+    .dimensions input[aria-invalid="true"] {
+      border-color: #c43d32;
+      background: #fff1ef;
+      box-shadow: 0 0 0 3px rgb(196 61 50 / 18%);
+    }
+
+    input::placeholder, textarea::placeholder { color: #9b9b94; opacity: 1; }
+
+    .dimension-field input.auto-derived { color: #9b9b94; }
+
+    .field { margin-top: 16px; }
+
+    .hint {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 16px;
+      cursor: pointer;
+    }
+
+    .check-row input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--accent); }
+    .check-row span { line-height: 1.35; }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .button-row .check-row { margin: 0; align-items: center; }
+
+    .button {
+      display: inline-flex;
+      min-height: 40px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 16px;
+      border: 1px solid var(--ink);
+      border-radius: 11px;
+      background: var(--panel);
+      font-weight: 850;
+      cursor: pointer;
+      transition: transform .12s, box-shadow .12s, background .12s;
+    }
+
+    .button:hover { transform: translateY(-1px); box-shadow: 0 4px 0 rgb(23 33 31 / 16%); }
+    .button:active { transform: translateY(0); box-shadow: none; }
+    .button.primary { border-color: var(--accent-dark); background: var(--accent); color: white; }
+    .button.icon-only { width: 44px; padding: 0; }
+
+    .play-icon {
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 10px solid currentColor;
+    }
+
+    .sharing-heading-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+    .invite-options { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-top: 10px; }
+    .invite-options > span { font-weight: 800; }
+    .share-side h3 { margin: 0; font-family: Georgia, serif; font-size: 21px; }
+    .share-side .check-row { margin: 0; align-items: center; }
+    .share-url { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .share-url .field-label { flex: none; margin: 0; }
+    .share-url input { flex: 1; min-width: 0; color: var(--muted); font-size: 12px; }
+    .share-side .status:empty { display: none; }
+    .share-side .status:not(:empty) { min-height: 0; margin-top: 8px; }
+
+    .status, .error {
+      min-height: 20px;
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .form-error {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid #d9473f;
+      border-radius: 9px;
+      background: #fff0ed;
+      font-size: 14px;
+    }
+
+    .form-error:empty { display: none; }
+
+    .help-dialog {
+      width: min(520px, calc(100% - 32px));
+      padding: 0;
+      border: 0;
+      border-radius: 14px;
+      background: var(--panel);
+      color: var(--ink);
+      box-shadow: 0 18px 60px rgb(23 33 31 / 34%);
+    }
+
+    .help-dialog::backdrop { background: rgb(7 26 31 / 66%); }
+    .help-content { position: relative; padding: 24px; }
+    .help-content h2 { margin: 0; padding-right: 48px; font-family: Georgia, "Times New Roman", serif; font-size: 24px; }
+    .help-content ol, .help-content ul { margin: 18px 0; padding-left: 24px; }
+    .help-content li { margin: 9px 0; }
+    .help-content p { margin: 14px 0; line-height: 1.45; }
+
+    .help-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: grid;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      place-items: center;
+      border: 1px solid var(--ink);
+      border-radius: 5px;
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 25px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .help-close:hover { color: white; background: var(--ink); }
+
+    .status { color: #167064; }
+    .error { color: #a52d21; }
+
+    .play-panel { padding: 0; }
+
+    .play-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      overflow-x: auto;
+    }
+
+    .play-title-row { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 12px; }
+    .toolbar-actions .info-button {
+      flex: 0 0 32px;
+      width: 32px;
+      min-width: 32px;
+      height: 32px;
+      min-height: 32px;
+      aspect-ratio: 1;
+      font-size: 18px;
+    }
+
+    .play-app-title {
+      display: inline-flex;
+      flex: none;
+      flex-direction: column;
+      align-items: center;
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .puzzle-title {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 700;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 7px;
+    }
+
+    .score {
+      flex: none;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .score strong { color: #21845f; }
+
+    .toolbar-actions { display: flex; flex: none; flex-wrap: wrap; gap: 5px; }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 200px;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      justify-content: start;
+      gap: 28px;
+      align-items: start;
+      padding-top: 14px;
+    }
+
+    .grid-wrap { min-width: 0; overflow: visible; padding: 5px; }
+
+    .clues { min-width: 0; }
+
+    .letter-grid {
+      position: relative;
+      display: grid;
+      width: 100%;
+      min-width: 320px;
+      aspect-ratio: var(--grid-ratio, 1);
+      grid-template-columns: repeat(var(--cols), 1fr);
+      grid-template-rows: repeat(var(--rows), 1fr);
+      border: 2px solid var(--ink);
+      border-radius: 13px;
+      background: #fffefa;
+      box-shadow: 7px 7px 0 #dcd6c9;
+      overflow: hidden;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .cell {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      min-width: 0;
+      place-items: center;
+      border-right: 1px solid rgb(23 33 31 / 8%);
+      border-bottom: 1px solid rgb(23 33 31 / 8%);
+      font: 760 var(--cell-font-size, 18px)/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      cursor: crosshair;
+      transition: color .08s;
+    }
+
+    .cell.found { background: transparent; }
+
+    @keyframes completion-cell-flash {
+      0%, 100% { background-color: transparent; }
+      50% { background-color: #ccefcf; }
+    }
+
+    .letter-grid.completion-flash .cell {
+      animation: completion-cell-flash .5s ease-in-out 3;
+    }
+
+    .found-overlay, .feedback-overlay {
+      position: absolute;
+      grid-area: 1 / 1 / -1 / -1;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .found-overlay { z-index: 1; }
+    .feedback-overlay { z-index: 3; }
+
+    .found-outline {
+      fill: none;
+      stroke: #21845f;
+      stroke-width: .075;
+    }
+
+    .selection-outline, .reveal-outline, .success-outline, .invalid-outline {
+      fill: none;
+      stroke-width: .08;
+    }
+
+    .selection-outline, .reveal-outline { stroke: #e3af17; }
+    .success-outline { stroke: #21845f; }
+    .invalid-outline { stroke: #d9473f; }
+
+    .clues h3 {
+      max-width: 100%;
+      margin: 0 0 5px;
+      font-family: Georgia, serif;
+      font-size: 22px;
+      line-height: 1.02;
+      overflow-wrap: normal;
+    }
+    .clue-help { margin: 7px 0 18px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .word-list {
+      columns: 110px;
+      column-gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .word-list li {
+      break-inside: avoid;
+      margin: 0 0 7px;
+      padding: 1px 0;
+      font: 750 13px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .04em;
+    }
+
+    .word-list li.found { color: var(--muted); text-decoration: line-through 2px var(--accent); }
+
+    .cheat-controls {
+      display: flex;
+      flex: none;
+      align-items: center;
+      margin: 0;
+    }
+
+    .progress-row .cheat-controls .button {
+      min-height: 26px;
+      padding: 0 7px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .reset-controls { margin-top: 12px; }
+
+    .play-panel .button {
+      min-height: 32px;
+      gap: 6px;
+      padding: 0 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .play-panel .toolbar-actions .button {
+      min-height: 30px;
+      padding: 0 8px;
+      font-size: 13px;
+    }
+
+    .clues .status:empty, .clues .error:empty { display: none; }
+
+    .empty-discoveries {
+      padding: 18px;
+      border: 1px dashed #bbb4a8;
+      border-radius: 11px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .completion {
+      display: none;
+      margin-top: 22px;
+      padding: 14px;
+      border: 1px solid #d8b63c;
+      border-radius: 11px;
+      background: #ccefcf;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .completion.show { display: block; }
+
+    .toast {
+      position: fixed;
+      z-index: 100;
+      top: 0;
+      left: 0;
+      max-width: min(360px, calc(100vw - 32px));
+      padding: 13px 17px;
+      border: 1px solid #071512;
+      border-radius: 11px;
+      background: var(--ink);
+      color: white;
+      box-shadow: 0 12px 30px rgb(23 33 31 / 28%);
+      font-size: 14px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(8px);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .page-footer {
+      padding: 18px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 760px) {
+      .shell { width: calc(100% - 16px); padding: 12px 0 28px; }
+      .masthead { margin-bottom: 10px; }
+      h1 { font-size: 25px; }
+
+      .button { min-height: 44px; padding: 0 13px; }
+      .check-row input { width: 22px; height: 22px; }
+      .clear-textarea { width: 34px; height: 34px; }
+      textarea { max-width: calc(100vw - 16px); }
+
+      .play-toolbar {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-bottom: 12px;
+        overflow: visible;
+      }
+
+      .play-title-row { flex-basis: 100%; width: 100%; }
+      .puzzle-title { font-size: 23px; }
+      .toolbar-actions { width: 100%; gap: 6px; }
+      .toolbar-actions .info-button { flex-basis: 44px; width: 44px; min-width: 44px; height: 44px; min-height: 44px; font-size: 22px; }
+      .play-panel .toolbar-actions .button { flex: 1; min-height: 44px; padding: 0 8px; font-size: 14px; }
+
+      .game-layout { grid-template-columns: 1fr; gap: 8px; padding-top: 12px; }
+      .masthead { align-items: center; }
+      .grid-wrap { overflow: visible; padding: 2px; }
+      .grid-wrap .page-footer { padding: 10px 0 0; }
+      .letter-grid { width: 100%; min-width: 0; border-radius: 9px; box-shadow: 4px 4px 0 #dcd6c9; }
+      .clues { border-top: 1px solid var(--line); padding-top: 8px; }
+      .cheat-controls { flex-wrap: wrap; }
+      .page-footer { padding-bottom: 14px; }
+      .grid-wrap .page-footer { padding-bottom: 0; }
+    }
+
+    @media (max-width: 400px) {
+      .inline-field { align-items: flex-start; flex-direction: column; gap: 5px; }
+      .inline-field input { width: 100%; }
+      .button-row { align-items: flex-start; flex-direction: column; }
+      .button-row .check-row { min-height: 28px; }
+      .share-url { gap: 5px; }
+      .share-url .button { padding: 0 10px; }
+    }
+
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead" id="mainHeader">
+      <div class="brand">
+        <h1>Word Search Generator</h1>
+      </div>
+      <div class="masthead-actions">
+        <button class="info-button" id="openHelpButton" type="button" aria-label="Open help" title="Help">i</button>
+        <button class="button" id="authorSaveButton" type="button">Save</button>
+        <button class="button" id="authorNewPuzzleButton" type="button">Reset</button>
+      </div>
+    </header>
+
+    <section class="panel author-panel" id="authorView">
+      <div class="form-side">
+        <form id="puzzleForm" novalidate>
+          <div class="error form-error" id="formError" role="alert"></div>
+
+          <div class="inline-field">
+            <label for="title">Puzzle title</label>
+            <input id="title" name="title" type="text" maxlength="80" placeholder="My Word Search" required>
+          </div>
+
+          <div class="field">
+            <div class="textarea-heading">
+              <label for="words">Words to hide</label>
+              <button class="clear-textarea" id="clearWordsButton" type="button" aria-label="Clear words" title="Clear words">×</button>
+            </div>
+            <textarea id="words" name="words" spellcheck="false" placeholder="Example: orbit comet moon star" required></textarea>
+            <p class="hint">Separate clues with spaces or new lines. Use dashes to separate multi-word clues. Each clue needs at least two letters. Letters a–z and dashes only. Duplicates are removed; reverse pairs are not allowed.</p>
+          </div>
+
+          <div class="dimensions">
+            <div class="dimension-field">
+              <label for="width">Width</label>
+              <input id="width" name="width" type="number" min="4" max="30" required>
+              <span class="dimension-auto-label" id="widthAutoLabel" aria-live="polite"></span>
+            </div>
+            <div class="times" aria-hidden="true">×</div>
+            <div class="dimension-field">
+              <label for="height">Height</label>
+              <input id="height" name="height" type="number" min="4" max="30" required>
+              <span class="dimension-auto-label" id="heightAutoLabel" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="button primary" type="submit">
+              <span class="play-icon" aria-hidden="true"></span>
+              <span>Play</span>
+            </button>
+            <label class="check-row">
+              <input id="hideClues" name="hideClues" type="checkbox">
+              <span>Hide clue words</span>
+            </label>
+            <label class="check-row">
+              <input id="sortClues" name="sortClues" type="checkbox">
+              <span>Display clues alphabetically</span>
+            </label>
+          </div>
+        </form>
+      </div>
+
+      <hr class="section-rule">
+
+      <aside class="share-side">
+        <div class="sharing-heading-row">
+          <h3>Sharing Options</h3>
+        </div>
+        <div class="invite-options">
+          <span>Invite players to:</span>
+          <label class="check-row">
+            <input id="editable" type="checkbox">
+            <span>Edit this puzzle</span>
+          </label>
+          <label class="check-row">
+            <input id="allowNewPuzzle" type="checkbox" checked>
+            <span>Create a new puzzle</span>
+          </label>
+        </div>
+
+        <div class="share-url">
+          <label class="field-label" for="authorShareUrl">URL:</label>
+          <input id="authorShareUrl" type="text" readonly aria-label="Shareable puzzle URL">
+          <button class="button" id="authorShareButton" type="button">Copy</button>
+        </div>
+        <div class="status" id="authorShareStatus" aria-live="polite"></div>
+      </aside>
+
+      <footer class="page-footer">By John K. Hinsdale of Princeton Junction, NJ USA</footer>
+    </section>
+
+    <section class="panel play-panel" id="playView" hidden>
+      <div class="play-toolbar">
+        <div class="play-title-row">
+          <span class="play-app-title"><span>Word</span><span>Search</span></span>
+          <h2 class="puzzle-title" id="puzzleTitle"></h2>
+        </div>
+        <div class="toolbar-actions">
+          <button class="info-button" id="playHelpButton" type="button" aria-label="Open help" title="Help">i</button>
+          <button class="button" id="editButton" type="button" aria-label="Edit puzzle">
+            <span aria-hidden="true">✎</span>
+            <span>Edit</span>
+          </button>
+          <button class="button" id="playShareButton" type="button" aria-label="Copy puzzle link">
+            <span aria-hidden="true">↗</span>
+            <span>Share</span>
+          </button>
+          <button class="button" id="saveButton" type="button" aria-label="Copy saved game link">
+            <span aria-hidden="true">↓</span>
+            <span>Save</span>
+          </button>
+          <button class="button" id="playNewPuzzleButton" type="button">Create a New Puzzle</button>
+        </div>
+      </div>
+
+      <div class="game-layout">
+        <div class="grid-wrap">
+          <div class="letter-grid" id="letterGrid" aria-label="Word search letter grid"></div>
+          <footer class="page-footer">By John K. Hinsdale of Princeton Junction, NJ USA</footer>
+        </div>
+        <aside class="clues">
+          <h3 id="clueHeading">Words</h3>
+          <div class="progress-row">
+            <p class="score" id="score">Got <strong>0</strong> of <strong>0</strong></p>
+            <div class="cheat-controls" id="cheatControls">
+              <button class="button" id="cheatButton" type="button">Reveal!</button>
+            </div>
+          </div>
+          <p class="clue-help" id="clueHelp">Drag in any direction to circle words, or click start and end letters</p>
+          <div class="empty-discoveries" id="emptyDiscoveries" hidden>Words appear here as you find them.</div>
+          <ul class="word-list" id="wordList"></ul>
+          <div class="completion" id="completion">All words found. Nice work!</div>
+          <div class="status" id="playStatus" aria-live="polite"></div>
+          <div class="error" id="playError" role="alert"></div>
+          <div class="reset-controls">
+            <button class="button" id="resetButton" type="button">Reset</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="help-dialog" id="helpDialog" aria-labelledby="editorHelpTitle">
+    <div class="help-content">
+      <button class="help-close" id="closeHelpButton" type="button" aria-label="Close help" title="Close">×</button>
+      <section id="editorHelp">
+        <h2 id="editorHelpTitle">Create a word search</h2>
+        <ol>
+          <li>Enter a puzzle title.</li>
+          <li>Enter the words to hide, separated by spaces or new lines. Use dashes to separate multi-word clues.</li>
+          <li>Set the sharing options for players.</li>
+          <li>Click <strong>Play</strong> to generate a shareable word search.</li>
+        </ol>
+        <p>You can optionally change the grid size or clue display before playing.</p>
+      </section>
+      <section id="editablePlayerHelp" hidden>
+        <h2 id="editablePlayerHelpTitle">How to play word search</h2>
+        <ul>
+          <li id="editableSelectionHelp">Drag in any direction to circle words, or click start and end letters.</li>
+          <li><strong>Edit</strong> returns to the generator with this puzzle.</li>
+          <li><strong>Share</strong> copies a clean, unplayed puzzle link.</li>
+          <li><strong>Reveal!</strong> reveals one unfound word.</li>
+          <li><strong>Reset</strong> clears your progress.</li>
+          <li><strong>Save</strong> copies a link containing your current progress.</li>
+          <li id="editablePlayerHelpNewPuzzle"><strong>Create a New Puzzle</strong> opens a blank generator.</li>
+        </ul>
+      </section>
+      <section id="playerHelp" hidden>
+        <h2 id="playerHelpTitle">How to play word search</h2>
+        <ul>
+          <li id="playerSelectionHelp">Drag in any direction to circle words, or click start and end letters.</li>
+          <li><strong>Share</strong> copies a clean, unplayed puzzle link.</li>
+          <li><strong>Reveal!</strong> reveals one unfound word.</li>
+          <li><strong>Reset</strong> clears your progress.</li>
+          <li><strong>Save</strong> copies a link containing your current progress.</li>
+          <li id="playerHelpNewPuzzle"><strong>Create a New Puzzle</strong> opens a blank generator.</li>
+        </ul>
+      </section>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    (async () => {
+      "use strict";
+
+      const $ = (selector) => document.querySelector(selector);
+      const ui = {
+        authorView: $("#authorView"),
+        playView: $("#playView"),
+        mainHeader: $("#mainHeader"),
+        helpDialog: $("#helpDialog"),
+        editorHelp: $("#editorHelp"),
+        editablePlayerHelp: $("#editablePlayerHelp"),
+        playerHelp: $("#playerHelp"),
+        openHelpButton: $("#openHelpButton"),
+        playHelpButton: $("#playHelpButton"),
+        closeHelpButton: $("#closeHelpButton"),
+        form: $("#puzzleForm"),
+        title: $("#title"),
+        width: $("#width"),
+        height: $("#height"),
+        widthAutoLabel: $("#widthAutoLabel"),
+        heightAutoLabel: $("#heightAutoLabel"),
+        words: $("#words"),
+        clearWordsButton: $("#clearWordsButton"),
+        authorSaveButton: $("#authorSaveButton"),
+        authorNewPuzzleButton: $("#authorNewPuzzleButton"),
+        playNewPuzzleButton: $("#playNewPuzzleButton"),
+        hideClues: $("#hideClues"),
+        sortClues: $("#sortClues"),
+        editable: $("#editable"),
+        allowNewPuzzle: $("#allowNewPuzzle"),
+        formError: $("#formError"),
+        authorShareUrl: $("#authorShareUrl"),
+        authorShareButton: $("#authorShareButton"),
+        authorShareStatus: $("#authorShareStatus"),
+        editButton: $("#editButton"),
+        saveButton: $("#saveButton"),
+        playShareButton: $("#playShareButton"),
+        playStatus: $("#playStatus"),
+        playError: $("#playError"),
+        puzzleTitle: $("#puzzleTitle"),
+        score: $("#score"),
+        grid: $("#letterGrid"),
+        wordList: $("#wordList"),
+        clueHeading: $("#clueHeading"),
+        clueHelp: $("#clueHelp"),
+        emptyDiscoveries: $("#emptyDiscoveries"),
+        cheatControls: $("#cheatControls"),
+        cheatButton: $("#cheatButton"),
+        resetButton: $("#resetButton"),
+        completion: $("#completion"),
+        editableSelectionHelp: $("#editableSelectionHelp"),
+        playerSelectionHelp: $("#playerSelectionHelp"),
+        editablePlayerHelpNewPuzzle: $("#editablePlayerHelpNewPuzzle"),
+        playerHelpNewPuzzle: $("#playerHelpNewPuzzle"),
+        toast: $("#toast")
+      };
+
+      const state = {
+        config: null,
+        puzzle: null,
+        found: new Set(),
+        foundOrder: [],
+        foundPaths: [],
+        selection: null,
+        playUrlMode: "play"
+      };
+      let authorUrlRequest = 0;
+      let playUrlRequest = 0;
+      let toastTimer = 0;
+      let invalidSelectionTimer = 0;
+      let cheatInProgress = false;
+      let successfulDragInProgress = false;
+      let pointerGesture = null;
+      let animationGeneration = 0;
+      const automaticDimensions = { width: true, height: true };
+      const urlDefaults = Object.freeze({
+        mode: "edit",
+        title: "",
+        width: Number.NaN,
+        height: Number.NaN,
+        words: "",
+        showClues: true,
+        sortClues: false,
+        editable: false,
+        allowNewPuzzle: true,
+        autoWidth: true,
+        autoHeight: true,
+        progress: ""
+      });
+      let writingAutomaticDimensions = false;
+      let automaticWordsTextareaHeight = null;
+      let wordsTextareaManuallyResized = false;
+      const gridResizeObserver = "ResizeObserver" in window
+        ? new ResizeObserver(() => updateGridMetrics())
+        : null;
+      gridResizeObserver?.observe(ui.grid);
+      window.addEventListener("resize", updateGridMetrics);
+
+      function normalizeWords(raw) {
+        const words = [];
+        const seenLetters = new Set();
+        for (const token of String(raw).toLowerCase().split(/\s+/)) {
+          const word = token
+            .replace(/[^a-z-]/g, "")
+            .replace(/-+/g, "-")
+            .replace(/^-|-$/g, "");
+          const letters = wordLetters(word);
+          if (!letters || seenLetters.has(letters)) continue;
+          seenLetters.add(letters);
+          words.push(word);
+        }
+        return words;
+      }
+
+      function wordLetters(word) {
+        return word.replaceAll("-", "");
+      }
+
+      function displayClue(word) {
+        return word.replaceAll("-", " ");
+      }
+
+      function sanitizeEditorWords() {
+        const original = ui.words.value;
+        const selectionStart = ui.words.selectionStart;
+        const selectionEnd = ui.words.selectionEnd;
+        const sanitize = value => value.toLowerCase().replace(/[^a-z\s-]/g, "");
+        const sanitized = sanitize(original);
+        if (sanitized === original) return;
+        ui.words.value = sanitized;
+        ui.words.setSelectionRange(
+          sanitize(original.slice(0, selectionStart)).length,
+          sanitize(original.slice(0, selectionEnd)).length
+        );
+      }
+
+      function preventInvalidWordInput(event) {
+        if (event.inputType === "insertText" && event.data && /[^a-z\s-]/i.test(event.data)) {
+          event.preventDefault();
+        }
+      }
+
+      function expandWordsTextarea() {
+        if (wordsTextareaManuallyResized) return;
+        const style = getComputedStyle(ui.words);
+        const currentHeight = ui.words.getBoundingClientRect().height;
+        const lineHeight = parseFloat(style.lineHeight);
+        const verticalChrome = (parseFloat(style.paddingTop) || 0)
+          + (parseFloat(style.paddingBottom) || 0)
+          + (parseFloat(style.borderTopWidth) || 0)
+          + (parseFloat(style.borderBottomWidth) || 0);
+        const maximumAutomaticHeight = lineHeight * 10 + verticalChrome;
+        const minimumHeight = parseFloat(style.minHeight) || 0;
+
+        if (automaticWordsTextareaHeight !== null
+            && Math.abs(currentHeight - automaticWordsTextareaHeight) > 2) {
+          automaticWordsTextareaHeight = null;
+          wordsTextareaManuallyResized = true;
+          return;
+        }
+
+        const neededHeight = Math.min(ui.words.scrollHeight + 2, maximumAutomaticHeight);
+        const nextHeight = Math.ceil(Math.max(minimumHeight, neededHeight));
+        ui.words.style.height = `${nextHeight}px`;
+        automaticWordsTextareaHeight = nextHeight;
+      }
+
+      function normalizeTitle(raw) {
+        return String(raw).trim().replace(/\s+/g, " ");
+      }
+
+      function updatePageTitle(config = null) {
+        const puzzleTitle = normalizeTitle(config?.title || "");
+        document.title = puzzleTitle ? `${puzzleTitle} — Word Search` : "Word Search Generator";
+      }
+
+      function suggestedGridDimensions(words, fixedWidth = null, fixedHeight = null) {
+        if (!words.length) return { width: "", height: "" };
+        const totalLetters = words.reduce((total, word) => total + wordLetters(word).length, 0);
+        const longestWord = Math.max(...words.map(word => wordLetters(word).length));
+        const targetDensity = words.length >= 40 ? 1.04
+          : words.length >= 20 ? .94
+            : words.length >= 8 ? .82
+              : .72;
+        const targetArea = Math.min(900, Math.max(
+          16,
+          longestWord * 4,
+          words.length * 4,
+          Math.ceil(totalLetters / targetDensity)
+        ));
+        const widthIsFixed = Number.isInteger(fixedWidth) && fixedWidth >= 4 && fixedWidth <= 30;
+        const heightIsFixed = Number.isInteger(fixedHeight) && fixedHeight >= 4 && fixedHeight <= 30;
+
+        if (!widthIsFixed && !heightIsFixed) {
+          const side = Math.min(30, Math.max(4, longestWord, Math.ceil(Math.sqrt(targetArea))));
+          return { width: side, height: side };
+        }
+
+        const widths = widthIsFixed
+          ? [fixedWidth]
+          : Array.from({ length: 27 }, (_, index) => index + 4);
+        const heights = heightIsFixed
+          ? [fixedHeight]
+          : Array.from({ length: 27 }, (_, index) => index + 4);
+        let best = null;
+
+        for (const width of widths) {
+          for (const height of heights) {
+            const area = width * height;
+            if (area < targetArea || Math.max(width, height) < longestWord) continue;
+            const shapePenalty = Math.abs(Math.log(width / height)) * targetArea * .18;
+            const score = area - targetArea + shapePenalty;
+            if (!best || score < best.score) best = { width, height, score };
+          }
+        }
+
+        if (best) {
+          return { width: best.width, height: best.height };
+        }
+        return {
+          width: widths[widths.length - 1],
+          height: heights[heights.length - 1]
+        };
+      }
+
+      function updateAutomaticDimensions() {
+        updateAutomaticDimensionLabel();
+        if (!automaticDimensions.width && !automaticDimensions.height) return;
+        const words = normalizeWords(ui.words.value);
+        const fixedWidth = automaticDimensions.width ? null : Number.parseInt(ui.width.value, 10);
+        const fixedHeight = automaticDimensions.height ? null : Number.parseInt(ui.height.value, 10);
+        const dimensions = suggestedGridDimensions(words, fixedWidth, fixedHeight);
+        writingAutomaticDimensions = true;
+        if (automaticDimensions.width) {
+          ui.width.value = dimensions.width;
+          ui.width.classList.toggle("auto-derived", dimensions.width !== "");
+        }
+        if (automaticDimensions.height) {
+          ui.height.value = dimensions.height;
+          ui.height.classList.toggle("auto-derived", dimensions.height !== "");
+        }
+        writingAutomaticDimensions = false;
+      }
+
+      function updateAutomaticDimensionLabel() {
+        ui.widthAutoLabel.textContent = automaticDimensions.width ? "(auto)" : "";
+        ui.heightAutoLabel.textContent = automaticDimensions.height ? "(auto)" : "";
+      }
+
+      function configFromForm() {
+        const width = Number.parseInt(ui.width.value, 10);
+        const height = Number.parseInt(ui.height.value, 10);
+        const words = normalizeWords(ui.words.value);
+        return {
+          title: normalizeTitle(ui.title.value),
+          width,
+          height,
+          words,
+          showClues: !ui.hideClues.checked,
+          sortClues: ui.sortClues.checked,
+          editable: ui.editable.checked,
+          allowNewPuzzle: ui.allowNewPuzzle.checked,
+          autoWidth: automaticDimensions.width,
+          autoHeight: automaticDimensions.height
+        };
+      }
+
+      function dimensionInputError(input) {
+        const rawValue = input.value.trim();
+        if (!rawValue) return "";
+        const value = Number(rawValue);
+        const minimum = Number(input.min);
+        const maximum = Number(input.max);
+        const label = input === ui.width ? "Width" : "Height";
+        if (!Number.isFinite(value)) return `${label} must be a number.`;
+        if (value < minimum || value > maximum) {
+          return `${label} ${rawValue} is not between ${minimum} and ${maximum}.`;
+        }
+        if (!Number.isInteger(value)) return `${label} ${rawValue} is not a whole number.`;
+        return "";
+      }
+
+      function showImmediateDimensionError() {
+        for (const input of [ui.width, ui.height]) input.removeAttribute("aria-invalid");
+        for (const input of [ui.width, ui.height]) {
+          const message = dimensionInputError(input);
+          if (!message) continue;
+          input.setAttribute("aria-invalid", "true");
+          ui.formError.textContent = message;
+          return true;
+        }
+        ui.formError.textContent = "";
+        return false;
+      }
+
+      function validateConfig(config) {
+        if (!config.title) return "Add a puzzle title.";
+        if (config.title.length > 80) return "Keep the puzzle title to 80 characters or fewer.";
+        if (!config.words.length) return "Add at least one word.";
+        if (config.words.length > 80) return "Use 80 words or fewer.";
+        const tooShort = config.words.find(word => wordLetters(word).length < 2);
+        if (tooShort) return `“${tooShort}” must contain at least two letters.`;
+        if (!Number.isInteger(config.width) || config.width < 4 || config.width > 30 ||
+            !Number.isInteger(config.height) || config.height < 4 || config.height > 30) {
+          return "Width and height must be whole numbers from 4 to 30.";
+        }
+        const wordsByLetters = new Map(config.words.map(word => [wordLetters(word), word]));
+        const reversedPair = config.words.find(word => {
+          const letters = wordLetters(word);
+          const reversed = [...letters].reverse().join("");
+          return letters !== reversed && letters < reversed && wordsByLetters.has(reversed);
+        });
+        if (reversedPair) {
+          const reversed = [...wordLetters(reversedPair)].reverse().join("");
+          return `“${reversedPair}” and “${wordsByLetters.get(reversed)}” are reversals. Remove one to avoid an ambiguous selection.`;
+        }
+        const longestLength = Math.max(...config.words.map(word => wordLetters(word).length));
+        if (longestLength > Math.max(config.width, config.height)) {
+          const longestWords = config.words.filter(word => wordLetters(word).length === longestLength);
+          const quotedWords = longestWords.map(word => `“${word}”`);
+          const wordList = quotedWords.length === 1
+            ? quotedWords[0]
+            : quotedWords.length === 2
+              ? `${quotedWords[0]} and ${quotedWords[1]}`
+              : `${quotedWords.slice(0, -1).join(", ")}, and ${quotedWords.at(-1)}`;
+          const clueDescription = longestWords.length === 1
+            ? `The longest clue is ${wordList} (${longestLength} letters).`
+            : `The longest clues are ${wordList} (${longestLength} letters each).`;
+          return `${clueDescription} Width or height must be at least ${longestLength}.`;
+        }
+        return "";
+      }
+
+      function showConfigError(message, config) {
+        ui.formError.textContent = message;
+        for (const field of [ui.title, ui.words, ui.width, ui.height]) {
+          field.removeAttribute("aria-invalid");
+        }
+        if (!message || !config || ui.authorView.hidden) return;
+
+        let field;
+        if (!config.title || config.title.length > 80) {
+          field = ui.title;
+        } else if (!config.words.length || config.words.length > 80) {
+          field = ui.words;
+        } else if (!Number.isInteger(config.width) || config.width < 4 || config.width > 30) {
+          field = ui.width;
+        } else if (!Number.isInteger(config.height) || config.height < 4 || config.height > 30) {
+          field = ui.height;
+        } else {
+          field = ui.words;
+        }
+
+        field.setAttribute("aria-invalid", "true");
+        ui.formError.scrollIntoView({ behavior: "smooth", block: "start" });
+        field.focus({ preventScroll: true });
+      }
+
+      function canonicalKey(config) {
+        return `${config.width}x${config.height}|${config.words.map(wordLetters).sort().join(",")}`;
+      }
+
+      function fnv1a(text) {
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i++) {
+          hash ^= text.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return hash >>> 0;
+      }
+
+      function mulberry32(seed) {
+        return function random() {
+          let value = seed += 0x6D2B79F5;
+          value = Math.imul(value ^ value >>> 15, value | 1);
+          value ^= value + Math.imul(value ^ value >>> 7, value | 61);
+          return ((value ^ value >>> 14) >>> 0) / 4294967296;
+        };
+      }
+
+      function shuffle(items, random) {
+        for (let i = items.length - 1; i > 0; i--) {
+          const j = Math.floor(random() * (i + 1));
+          [items[i], items[j]] = [items[j], items[i]];
+        }
+        return items;
+      }
+
+      function makeCandidates(word, width, height, random) {
+        const directions = [
+          [-1, -1], [0, -1], [1, -1],
+          [-1, 0],            [1, 0],
+          [-1, 1],  [0, 1],  [1, 1]
+        ];
+        const candidates = [];
+        const seen = new Set();
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            for (const [dx, dy] of directions) {
+              const endX = x + dx * (word.length - 1);
+              const endY = y + dy * (word.length - 1);
+              if (endX < 0 || endX >= width || endY < 0 || endY >= height) continue;
+              const cells = Array.from({ length: word.length }, (_, index) => ({
+                x: x + dx * index,
+                y: y + dy * index,
+                letter: word[index]
+              }));
+              const signature = cells.map(cell => `${cell.x}:${cell.y}`).join("|");
+              if (!seen.has(signature)) {
+                seen.add(signature);
+                candidates.push(cells);
+              }
+            }
+          }
+        }
+        return shuffle(candidates, random);
+      }
+
+      function samePoint(first, second) {
+        return first.x === second.x && first.y === second.y;
+      }
+
+      function pathsOverlap(first, second) {
+        return first.some(firstPoint =>
+          second.some(secondPoint => samePoint(firstPoint, secondPoint)));
+      }
+
+      function pathsMatch(first, second) {
+        if (!first || !second || first.length !== second.length) return false;
+        const firstEnd = first[first.length - 1];
+        const secondEnd = second[second.length - 1];
+        return (samePoint(first[0], second[0]) && samePoint(firstEnd, secondEnd))
+          || (samePoint(first[0], secondEnd) && samePoint(firstEnd, second[0]));
+      }
+
+      async function generatePuzzle(config) {
+        const seed = fnv1a(canonicalKey(config));
+        const random = mulberry32(seed);
+        const grid = Array.from({ length: config.height }, () => Array(config.width).fill(""));
+        const candidateMap = new Map();
+        const orderedWords = [...config.words].sort((a, b) =>
+          wordLetters(b).length - wordLetters(a).length || (a < b ? -1 : a > b ? 1 : 0));
+        const separateWordPairs = new Map(orderedWords.map(word => [word, new Set()]));
+        for (let firstIndex = 0; firstIndex < orderedWords.length; firstIndex++) {
+          for (let secondIndex = firstIndex + 1; secondIndex < orderedWords.length; secondIndex++) {
+            const first = orderedWords[firstIndex];
+            const second = orderedWords[secondIndex];
+            const firstLetters = wordLetters(first);
+            const secondLetters = wordLetters(second);
+            const longer = firstLetters.length >= secondLetters.length ? firstLetters : secondLetters;
+            const shorter = firstLetters.length >= secondLetters.length ? secondLetters : firstLetters;
+            const reversedShorter = [...shorter].reverse().join("");
+            if (longer.includes(shorter) || longer.includes(reversedShorter)) {
+              separateWordPairs.get(first).add(second);
+              separateWordPairs.get(second).add(first);
+            }
+          }
+        }
+        for (const word of orderedWords) {
+          candidateMap.set(word, makeCandidates(wordLetters(word).toUpperCase(), config.width, config.height, random));
+        }
+
+        const placements = new Map();
+        let searchSteps = 0;
+        const maxSearchSteps = 10000;
+        const maxSearchMilliseconds = 2000;
+        const searchStarted = performance.now();
+
+        function viableCandidates(word) {
+          const overlapBuckets = Array.from({ length: wordLetters(word).length + 1 }, () => []);
+          for (const cells of candidateMap.get(word)) {
+            let overlap = 0;
+            let fits = true;
+            for (const cell of cells) {
+              const existing = grid[cell.y][cell.x];
+              if (existing && existing !== cell.letter) {
+                fits = false;
+                break;
+              }
+              if (existing === cell.letter) overlap++;
+            }
+            if (fits) {
+              for (const placedWord of separateWordPairs.get(word)) {
+                const placedCells = placements.get(placedWord);
+                if (!placedCells) continue;
+                if (pathsOverlap(placedCells, cells)) {
+                  fits = false;
+                  break;
+                }
+              }
+            }
+            if (fits) overlapBuckets[overlap].push({ cells, overlap });
+          }
+          const viable = [];
+          for (let overlap = overlapBuckets.length - 1; overlap >= 0; overlap--) {
+            for (const candidate of overlapBuckets[overlap]) viable.push(candidate);
+          }
+          return viable;
+        }
+
+        async function place(remaining) {
+          searchSteps++;
+          if (searchSteps > maxSearchSteps || performance.now() - searchStarted > maxSearchMilliseconds) return false;
+          if (searchSteps % 50 === 0) {
+            await new Promise(resolve => window.setTimeout(resolve, 0));
+          }
+          if (!remaining.length) return true;
+
+          const chosenWord = remaining[0];
+          const chosenCandidates = viableCandidates(chosenWord);
+          if (!chosenCandidates.length) return false;
+          const next = remaining.slice(1);
+          for (const candidate of chosenCandidates) {
+            const changed = [];
+            for (const cell of candidate.cells) {
+              if (!grid[cell.y][cell.x]) {
+                grid[cell.y][cell.x] = cell.letter;
+                changed.push(cell);
+              }
+            }
+            placements.set(chosenWord, candidate.cells);
+            if (await place(next)) return true;
+            placements.delete(chosenWord);
+            for (const cell of changed) grid[cell.y][cell.x] = "";
+          }
+          return false;
+        }
+
+        if (!await place(orderedWords)) {
+          throw new Error("These words could not be placed quickly. Try a larger grid or fewer words.");
+        }
+
+        const filler = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (let y = 0; y < config.height; y++) {
+          for (let x = 0; x < config.width; x++) {
+            if (!grid[y][x]) grid[y][x] = filler[Math.floor(random() * filler.length)];
+          }
+        }
+        return { grid, placements };
+      }
+
+      function canonicalUrlData(mode, config, progress = []) {
+        const modeCode = { edit: "e", preview: "v", play: "p" }[mode];
+        const progressText = progress.map(entry => {
+          const start = entry.path[0];
+          const end = entry.path[entry.path.length - 1];
+          return `${entry.word}:${start.x},${start.y}:${end.x},${end.y}`;
+        }).join(" ");
+        const params = new URLSearchParams();
+        params.set("mode", modeCode);
+        params.set("title", config.title);
+        params.set("width", Number.isFinite(config.width) ? String(config.width) : "");
+        params.set("height", Number.isFinite(config.height) ? String(config.height) : "");
+        params.set("words", config.words.join(" "));
+        params.set("showClues", config.showClues ? "1" : "0");
+        params.set("sortClues", config.sortClues ? "1" : "0");
+        params.set("editable", config.editable ? "1" : "0");
+        params.set("allowNewPuzzle", config.allowNewPuzzle ? "1" : "0");
+        params.set("autoWidth", config.autoWidth ? "1" : "0");
+        params.set("autoHeight", config.autoHeight ? "1" : "0");
+        params.set("progress", progressText);
+        return params.toString();
+      }
+
+      function bytesToBase64Url(bytes) {
+        let binary = "";
+        const chunkSize = 0x8000;
+        for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+          binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+        }
+        return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+      }
+
+      function base64UrlToBytes(value) {
+        const base64 = value.replaceAll("-", "+").replaceAll("_", "/");
+        const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
+        const binary = atob(padded);
+        return Uint8Array.from(binary, character => character.charCodeAt(0));
+      }
+
+      async function compressText(text) {
+        if (!("CompressionStream" in window)) {
+          throw new Error("This browser does not support compressed puzzle links.");
+        }
+        const compressed = new Blob([text])
+          .stream()
+          .pipeThrough(new CompressionStream("gzip"));
+        return bytesToBase64Url(new Uint8Array(await new Response(compressed).arrayBuffer()));
+      }
+
+      async function decompressText(value) {
+        if (!("DecompressionStream" in window)) {
+          throw new Error("This browser cannot open compressed puzzle links.");
+        }
+        const decompressed = new Blob([base64UrlToBytes(value)])
+          .stream()
+          .pipeThrough(new DecompressionStream("gzip"));
+        return new Response(decompressed).text();
+      }
+
+      function urlStateFromCanonicalData(text) {
+        const params = new URLSearchParams(text);
+        const modeCode = params.get("mode") ?? { edit: "e", preview: "v", play: "p" }[urlDefaults.mode];
+        const mode = { e: "edit", v: "preview", p: "play" }[modeCode];
+        if (!mode) {
+          throw new Error("The compressed puzzle data is invalid.");
+        }
+        const booleanParam = (name, defaultValue) => {
+          const value = params.get(name);
+          if (value === null) return defaultValue;
+          if (value === "1") return true;
+          if (value === "0") return false;
+          throw new Error(`The ${name} puzzle setting is invalid.`);
+        };
+        const title = params.get("title") ?? urlDefaults.title;
+        const width = params.get("width");
+        const height = params.get("height");
+        const words = params.get("words") ?? urlDefaults.words;
+        const progress = params.get("progress") ?? urlDefaults.progress;
+        const entries = progress.split(" ").filter(Boolean).map(token => {
+          const match = token.match(/^([a-z]+(?:-[a-z]+)*):(\d+),(\d+):(\d+),(\d+)$/);
+          if (!match) return null;
+          return {
+            word: match[1],
+            start: { x: Number(match[2]), y: Number(match[3]) },
+            end: { x: Number(match[4]), y: Number(match[5]) }
+          };
+        }).filter(Boolean);
+        return {
+          mode,
+          config: {
+            title: normalizeTitle(title),
+            width: width === null ? urlDefaults.width : Number.parseInt(width, 10),
+            height: height === null ? urlDefaults.height : Number.parseInt(height, 10),
+            words: normalizeWords(words),
+            showClues: booleanParam("showClues", urlDefaults.showClues),
+            sortClues: booleanParam("sortClues", urlDefaults.sortClues),
+            editable: booleanParam("editable", urlDefaults.editable),
+            allowNewPuzzle: booleanParam("allowNewPuzzle", urlDefaults.allowNewPuzzle),
+            autoWidth: booleanParam("autoWidth", urlDefaults.autoWidth),
+            autoHeight: booleanParam("autoHeight", urlDefaults.autoHeight)
+          },
+          progress: entries
+        };
+      }
+
+      async function makeStateUrl(mode, config, progress = []) {
+        const url = new URL(window.location.href);
+        url.search = "";
+        url.hash = "";
+        const isDefaultEditorState = mode === "edit"
+          && !config.title
+          && !Number.isFinite(config.width)
+          && !Number.isFinite(config.height)
+          && config.words.length === 0
+          && config.showClues === urlDefaults.showClues
+          && config.sortClues === urlDefaults.sortClues
+          && config.editable === urlDefaults.editable
+          && config.allowNewPuzzle === urlDefaults.allowNewPuzzle
+          && config.autoWidth === urlDefaults.autoWidth
+          && config.autoHeight === urlDefaults.autoHeight
+          && progress.length === 0;
+        if (isDefaultEditorState) return url.toString();
+        url.searchParams.set("p", await compressText(canonicalUrlData(mode, config, progress)));
+        return url.toString();
+      }
+
+      async function shareUrl(config) {
+        return makeStateUrl("play", config);
+      }
+
+      async function stateFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.has("p")) return null;
+        return urlStateFromCanonicalData(await decompressText(params.get("p")));
+      }
+
+      function fillForm(config) {
+        automaticDimensions.width = config.autoWidth === true;
+        automaticDimensions.height = config.autoHeight === true;
+        ui.width.classList.remove("auto-derived");
+        ui.height.classList.remove("auto-derived");
+        ui.title.value = config.title;
+        ui.width.value = Number.isFinite(config.width) ? config.width : "";
+        ui.height.value = Number.isFinite(config.height) ? config.height : "";
+        ui.width.classList.toggle("auto-derived", automaticDimensions.width && ui.width.value !== "");
+        ui.height.classList.toggle("auto-derived", automaticDimensions.height && ui.height.value !== "");
+        ui.words.value = config.words.join(" ");
+        ui.hideClues.checked = !config.showClues;
+        ui.sortClues.checked = config.sortClues;
+        ui.editable.checked = config.editable;
+        ui.allowNewPuzzle.checked = config.allowNewPuzzle;
+        updateAutomaticDimensionLabel();
+        refreshAuthorUrl();
+      }
+
+      function showAuthor() {
+        ui.playView.hidden = true;
+        ui.authorView.hidden = false;
+        ui.mainHeader.hidden = false;
+        ui.formError.textContent = "";
+        updateAutomaticDimensionLabel();
+        window.requestAnimationFrame(expandWordsTextarea);
+        refreshAuthorUrl();
+      }
+
+      function startNewPuzzle() {
+        animationGeneration++;
+        authorUrlRequest++;
+        playUrlRequest++;
+        cheatInProgress = false;
+        successfulDragInProgress = false;
+        pointerGesture = null;
+        automaticDimensions.width = true;
+        automaticDimensions.height = true;
+        updateAutomaticDimensionLabel();
+        ui.form.reset();
+        ui.editable.checked = false;
+        ui.allowNewPuzzle.checked = true;
+        ui.width.classList.remove("auto-derived");
+        ui.height.classList.remove("auto-derived");
+        ui.words.style.width = "";
+        ui.words.style.height = "";
+        automaticWordsTextareaHeight = null;
+        wordsTextareaManuallyResized = false;
+        ui.grid.classList.remove("completion-flash");
+        ui.cheatButton.disabled = false;
+        ui.formError.textContent = "";
+        ui.authorShareStatus.textContent = "";
+        ui.playStatus.textContent = "";
+        ui.playError.textContent = "";
+        ui.authorShareUrl.value = "";
+        state.config = null;
+        state.puzzle = null;
+        state.found = new Set();
+        state.foundOrder = [];
+        state.foundPaths = [];
+        state.selection = null;
+        state.playUrlMode = "play";
+        clearInvalidSelection();
+        const url = new URL(window.location.href);
+        url.search = "";
+        url.hash = "";
+        window.history.replaceState(null, "", url);
+        showAuthor();
+        ui.title.focus();
+      }
+
+      function restoreProgress(progress) {
+        for (const entry of progress) {
+          if (!configHasWord(entry.word) || state.found.has(entry.word)) continue;
+          if (![entry.start, entry.end].every(point =>
+            point.x >= 0 && point.x < state.config.width && point.y >= 0 && point.y < state.config.height)) continue;
+          const path = lineBetween(entry.start, entry.end);
+          if (!path) continue;
+          if (!pathsMatch(path, state.puzzle.placements.get(entry.word))) continue;
+          const letters = selectedWord(path).toLowerCase();
+          const clueLetters = wordLetters(entry.word);
+          if (letters !== clueLetters && [...letters].reverse().join("") !== clueLetters) continue;
+          state.found.add(entry.word);
+          state.foundOrder.push(entry.word);
+          state.foundPaths.push(path);
+        }
+      }
+
+      function configHasWord(word) {
+        return state.config.words.includes(word);
+      }
+
+      function currentProgress() {
+        return state.foundOrder.map((word, index) => ({ word, path: state.foundPaths[index] }));
+      }
+
+      async function updatePlayAddress() {
+        const request = ++playUrlRequest;
+        const config = state.config;
+        const mode = state.playUrlMode;
+        const progress = currentProgress();
+        await new Promise(resolve => window.setTimeout(resolve, 180));
+        if (request !== playUrlRequest || ui.playView.hidden) return;
+        try {
+          const url = await makeStateUrl(mode, config, progress);
+          if (request === playUrlRequest && !ui.playView.hidden && state.config === config) {
+            window.history.replaceState(null, "", url);
+            updatePageTitle(config);
+          }
+        } catch (problem) {
+          ui.playError.textContent = problem.message;
+        }
+      }
+
+      async function showPlay(config, updateAddress = true, canEdit = config.editable, urlMode = "play", progress = []) {
+        const error = validateConfig(config);
+        if (error) {
+          showConfigError(error, config);
+          return;
+        }
+
+        let puzzle;
+        try {
+          puzzle = await generatePuzzle(config);
+        } catch (problem) {
+          ui.formError.textContent = problem.message;
+          if (!ui.authorView.hidden) return;
+          ui.playError.textContent = problem.message;
+          return;
+        }
+
+        animationGeneration++;
+        cheatInProgress = false;
+        successfulDragInProgress = false;
+        pointerGesture = null;
+        state.config = config;
+        state.puzzle = puzzle;
+        state.found = new Set();
+        state.foundOrder = [];
+        state.foundPaths = [];
+        state.selection = null;
+        state.playUrlMode = urlMode;
+        ui.grid.classList.remove("completion-flash");
+        updatePageTitle(config);
+        restoreProgress(progress);
+        ui.authorView.hidden = true;
+        ui.playView.hidden = false;
+        ui.mainHeader.hidden = true;
+        ui.puzzleTitle.textContent = config.title;
+        ui.editButton.hidden = !canEdit;
+        ui.playNewPuzzleButton.hidden = urlMode !== "preview" && !config.allowNewPuzzle;
+        ui.playError.textContent = "";
+        ui.playStatus.textContent = "";
+        renderGrid();
+        renderWords();
+        redrawCellStates();
+        renderFoundOutlines();
+        if (updateAddress) {
+          try {
+            const url = await makeStateUrl(urlMode, config, currentProgress());
+            if (!ui.playView.hidden && state.config === config) {
+              window.history.replaceState(null, "", url);
+              updatePageTitle(config);
+            }
+          } catch (problem) {
+            ui.playError.textContent = problem.message;
+          }
+        }
+      }
+
+      function renderGrid() {
+        const { width, height } = state.config;
+        ui.grid.replaceChildren();
+        ui.grid.style.setProperty("--cols", width);
+        ui.grid.style.setProperty("--rows", height);
+        ui.grid.style.setProperty("--grid-ratio", `${width} / ${height}`);
+        const fragment = document.createDocumentFragment();
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+            cell.textContent = state.puzzle.grid[y][x];
+            cell.setAttribute("aria-label", `${state.puzzle.grid[y][x]}, row ${y + 1}, column ${x + 1}`);
+            fragment.append(cell);
+          }
+        }
+        ui.grid.append(fragment);
+        const overlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        overlay.classList.add("found-overlay");
+        overlay.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        overlay.setAttribute("preserveAspectRatio", "none");
+        overlay.setAttribute("aria-hidden", "true");
+        ui.grid.append(overlay);
+        const feedbackOverlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        feedbackOverlay.classList.add("feedback-overlay");
+        feedbackOverlay.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        feedbackOverlay.setAttribute("preserveAspectRatio", "none");
+        feedbackOverlay.setAttribute("aria-hidden", "true");
+        ui.grid.append(feedbackOverlay);
+        window.requestAnimationFrame(updateGridMetrics);
+      }
+
+      function updateGridMetrics() {
+        if (!state.config) return;
+        const gameLayout = ui.grid.closest(".game-layout");
+        if (gameLayout && window.matchMedia("(min-width: 761px)").matches && !ui.playView.hidden) {
+          const clues = gameLayout.querySelector(".clues");
+          const gridWrap = ui.grid.parentElement;
+          const footer = ui.grid.nextElementSibling;
+          const layoutBounds = gameLayout.getBoundingClientRect();
+          const gridTop = ui.grid.getBoundingClientRect().top;
+          const footerHeight = footer?.getBoundingClientRect().height || 0;
+          const cluesTop = clues?.getBoundingClientRect().top || gridTop;
+          const wrapStyle = getComputedStyle(gridWrap);
+          const wrapPadding = (parseFloat(wrapStyle.paddingLeft) || 0)
+            + (parseFloat(wrapStyle.paddingRight) || 0);
+          const viewportWidth = Math.max(0, window.innerWidth - layoutBounds.left - 8);
+          const layoutWidth = Math.min(gameLayout.clientWidth, viewportWidth);
+          const longestClue = Math.max(0, ...state.config.words.map(word => word.length));
+          const cluesHeight = Math.max(120, window.innerHeight - cluesTop - 16);
+          const availableListHeight = Math.max(100, cluesHeight - 170);
+          const rowsPerClueColumn = Math.max(1, Math.floor(availableListHeight / 25));
+          const clueColumns = state.config.showClues
+            ? Math.max(1, Math.min(4, Math.ceil(state.config.words.length / rowsPerClueColumn)))
+            : 1;
+          const clueColumnWidth = Math.max(110, Math.min(180, longestClue * 8 + 10));
+          const desiredCluesWidth = Math.max(200,
+            clueColumns * clueColumnWidth + (clueColumns - 1) * 14);
+          const cluesWidth = Math.min(desiredCluesWidth,
+            Math.max(200, layoutWidth - 28 - wrapPadding - 80));
+          const widthLimit = Math.max(80, layoutWidth - cluesWidth - 28 - wrapPadding);
+          const heightLimit = Math.max(120, window.innerHeight - gridTop - footerHeight - 48);
+          const widthFromHeight = heightLimit * state.config.width / state.config.height;
+          const gridWidth = Math.floor(Math.max(80, Math.min(widthLimit, widthFromHeight)));
+          gameLayout.style.gridTemplateColumns = `${gridWidth + wrapPadding}px ${cluesWidth}px`;
+          ui.grid.style.width = `${gridWidth}px`;
+          if (clues) {
+            clues.style.maxHeight = `${cluesHeight}px`;
+            clues.style.overflowY = "auto";
+          }
+        } else if (gameLayout) {
+          gameLayout.style.gridTemplateColumns = "";
+          ui.grid.style.width = "";
+          const clues = gameLayout.querySelector(".clues");
+          if (clues) {
+            clues.style.maxHeight = "";
+            clues.style.overflowY = "";
+          }
+        }
+        const bounds = ui.grid.getBoundingClientRect();
+        if (!bounds.width || !bounds.height) return;
+        const cellWidth = (bounds.width - 4) / state.config.width;
+        const cellHeight = (bounds.height - 4) / state.config.height;
+        const fontSize = Math.max(7, Math.min(26, Math.min(cellWidth, cellHeight) * .58));
+        ui.grid.style.setProperty("--cell-font-size", `${fontSize}px`);
+      }
+
+      function renderWords() {
+        ui.wordList.replaceChildren();
+        const availableWords = state.config.showClues
+          ? state.config.words
+          : state.config.words.filter(word => state.found.has(word));
+        const words = state.config.sortClues ? [...availableWords].sort() : availableWords;
+        for (const word of words) {
+          const item = document.createElement("li");
+          item.textContent = displayClue(word).toUpperCase();
+          item.classList.toggle("found", state.found.has(word));
+          ui.wordList.append(item);
+        }
+        ui.clueHeading.textContent = "Words";
+        const selectionHelp = selectionInstruction();
+        ui.clueHelp.textContent = selectionHelp;
+        ui.editableSelectionHelp.textContent = `${selectionHelp}.`;
+        ui.playerSelectionHelp.textContent = `${selectionHelp}.`;
+        ui.clueHelp.hidden = false;
+        ui.emptyDiscoveries.hidden = state.config.showClues || state.found.size > 0;
+        ui.score.innerHTML = `Got <strong>${state.found.size}</strong> of <strong>${state.config.words.length}</strong>`;
+        const complete = state.found.size === state.config.words.length;
+        ui.cheatControls.hidden = complete;
+        ui.completion.classList.toggle("show", complete);
+      }
+
+      function selectionInstruction() {
+        const action = window.matchMedia("(pointer: coarse)").matches ? "tap" : "click";
+        return `Drag in any direction to circle words, or ${action} start and end letters`;
+      }
+
+      function lineBetween(start, end) {
+        const deltaX = end.x - start.x;
+        const deltaY = end.y - start.y;
+        if (deltaX !== 0 && deltaY !== 0 && Math.abs(deltaX) !== Math.abs(deltaY)) return null;
+        const steps = Math.max(Math.abs(deltaX), Math.abs(deltaY));
+        if (!steps) return [{ x: start.x, y: start.y }];
+        const stepX = Math.sign(deltaX);
+        const stepY = Math.sign(deltaY);
+        return Array.from({ length: steps + 1 }, (_, index) => ({
+          x: start.x + stepX * index,
+          y: start.y + stepY * index
+        }));
+      }
+
+      function cellAtPoint(clientX, clientY) {
+        const element = document.elementFromPoint(clientX, clientY);
+        const cell = element && element.closest(".cell");
+        if (!cell || !ui.grid.contains(cell)) return null;
+        return { x: Number(cell.dataset.x), y: Number(cell.dataset.y) };
+      }
+
+      function redrawCellStates() {
+        const foundKeys = new Set(state.foundPaths.flat().map(point => `${point.x}:${point.y}`));
+        for (const cell of ui.grid.querySelectorAll(".cell")) {
+          const key = `${cell.dataset.x}:${cell.dataset.y}`;
+          cell.classList.toggle("found", foundKeys.has(key));
+        }
+        renderFeedbackOutline(state.selection?.path, "selection-outline");
+      }
+
+      function redrawSelection() {
+        renderFeedbackOutline(state.selection?.path, "selection-outline");
+      }
+
+      function appendOutlinePath(overlay, path, className) {
+        if (!overlay || !path?.length) return;
+        const namespace = "http://www.w3.org/2000/svg";
+        const start = path[0];
+        const end = path[path.length - 1];
+        const startX = start.x + .5;
+        const startY = start.y + .5;
+        const deltaX = end.x - start.x;
+        const deltaY = end.y - start.y;
+        const length = Math.hypot(deltaX, deltaY);
+        const radius = .42;
+        let outline;
+
+        if (length === 0) {
+          outline = document.createElementNS(namespace, "circle");
+          outline.setAttribute("cx", startX);
+          outline.setAttribute("cy", startY);
+          outline.setAttribute("r", radius);
+        } else {
+          outline = document.createElementNS(namespace, "rect");
+          outline.setAttribute("x", -radius);
+          outline.setAttribute("y", -radius);
+          outline.setAttribute("width", length + radius * 2);
+          outline.setAttribute("height", radius * 2);
+          outline.setAttribute("rx", radius);
+          outline.setAttribute(
+            "transform",
+            `translate(${startX} ${startY}) rotate(${Math.atan2(deltaY, deltaX) * 180 / Math.PI})`
+          );
+        }
+        outline.classList.add(className);
+        overlay.append(outline);
+      }
+
+      function renderFeedbackOutline(path, className) {
+        const overlay = ui.grid.querySelector(".feedback-overlay");
+        if (!overlay) return;
+        overlay.replaceChildren();
+        appendOutlinePath(overlay, path, className);
+      }
+
+      function renderFoundOutlines() {
+        const overlay = ui.grid.querySelector(".found-overlay");
+        if (!overlay) return;
+        overlay.replaceChildren();
+        for (const path of state.foundPaths) {
+          appendOutlinePath(overlay, path, "found-outline");
+        }
+      }
+
+      function selectedWord(path) {
+        return path.map(point => state.puzzle.grid[point.y][point.x]).join("");
+      }
+
+      function clearInvalidSelection() {
+        window.clearTimeout(invalidSelectionTimer);
+        renderFeedbackOutline(null, "invalid-outline");
+      }
+
+      function flashInvalidSelection(path) {
+        clearInvalidSelection();
+        renderFeedbackOutline(path, "invalid-outline");
+        invalidSelectionTimer = window.setTimeout(clearInvalidSelection, 650);
+      }
+
+      function flashCompletedGrid() {
+        ui.grid.classList.remove("completion-flash");
+        void ui.grid.offsetWidth;
+        ui.grid.classList.add("completion-flash");
+      }
+
+      function recordFoundWord(word, path) {
+        if (state.found.has(word)) return;
+        state.found.add(word);
+        state.foundOrder.push(word);
+        state.foundPaths.push(path);
+        renderWords();
+        renderFoundOutlines();
+        if (state.found.size === state.config.words.length) flashCompletedGrid();
+        void updatePlayAddress();
+      }
+
+      async function finishSelection() {
+        const path = state.selection?.path;
+        let invalid = false;
+        if (path && path.length) {
+          const forward = selectedWord(path).toLowerCase();
+          const backward = [...forward].reverse().join("");
+          const clue = state.config.words.find(word =>
+            (wordLetters(word) === forward || wordLetters(word) === backward)
+            && pathsMatch(path, state.puzzle.placements.get(word)));
+          if (clue && !state.found.has(clue)) {
+            const generation = animationGeneration;
+            successfulDragInProgress = true;
+            state.selection = null;
+            redrawCellStates();
+            renderFeedbackOutline(path, "success-outline");
+            await new Promise(resolve => window.setTimeout(resolve, 280));
+            renderFeedbackOutline(null, "success-outline");
+            if (generation !== animationGeneration) {
+              successfulDragInProgress = false;
+              return;
+            }
+            recordFoundWord(clue, path);
+            redrawCellStates();
+            successfulDragInProgress = false;
+            return;
+          } else if (!clue) invalid = true;
+        }
+        state.selection = null;
+        redrawCellStates();
+        if (invalid) flashInvalidSelection(path);
+      }
+
+      ui.grid.addEventListener("pointerdown", event => {
+        if (successfulDragInProgress) return;
+        if (pointerGesture) return;
+        if (event.button !== 0) return;
+        const cell = event.target.closest(".cell");
+        if (!cell) return;
+        if (event.pointerType !== "touch") event.preventDefault();
+        clearInvalidSelection();
+        ui.grid.setPointerCapture(event.pointerId);
+        const point = { x: Number(cell.dataset.x), y: Number(cell.dataset.y) };
+        const pendingStart = state.selection?.mode === "pending" ? state.selection.start : null;
+        pointerGesture = {
+          pointerId: event.pointerId,
+          point,
+          pendingStart,
+          startClientX: event.clientX,
+          startClientY: event.clientY,
+          moved: false
+        };
+        const previewPath = pendingStart ? lineBetween(pendingStart, point) : null;
+        state.selection = {
+          mode: "active",
+          pointerId: event.pointerId,
+          start: pendingStart || point,
+          path: previewPath || (pendingStart ? [pendingStart, point] : [point])
+        };
+        redrawSelection();
+      });
+
+      ui.grid.addEventListener("pointermove", event => {
+        if (!pointerGesture || pointerGesture.pointerId !== event.pointerId) return;
+        if (!pointerGesture.moved) {
+          const distance = Math.hypot(
+            event.clientX - pointerGesture.startClientX,
+            event.clientY - pointerGesture.startClientY
+          );
+          if (distance < 8) return;
+          pointerGesture.moved = true;
+          state.selection = {
+            mode: "active",
+            pointerId: event.pointerId,
+            start: pointerGesture.point,
+            path: [pointerGesture.point]
+          };
+        }
+        if (event.pointerType !== "touch" && event.cancelable) event.preventDefault();
+        const end = cellAtPoint(event.clientX, event.clientY);
+        if (!end) return;
+        const path = lineBetween(state.selection.start, end);
+        state.selection.path = path || [state.selection.start];
+        redrawSelection();
+      });
+
+      ui.grid.addEventListener("pointerup", event => {
+        if (!pointerGesture || pointerGesture.pointerId !== event.pointerId) return;
+        const gesture = pointerGesture;
+        pointerGesture = null;
+        if (gesture.moved) {
+          void finishSelection();
+          return;
+        }
+        if (gesture.pendingStart) {
+          if (samePoint(gesture.pendingStart, gesture.point)) {
+            state.selection = null;
+            redrawSelection();
+            return;
+          }
+          const path = lineBetween(gesture.pendingStart, gesture.point);
+          state.selection = {
+            mode: "active",
+            start: gesture.pendingStart,
+            path: path || [gesture.pendingStart, gesture.point]
+          };
+          void finishSelection();
+          return;
+        }
+        state.selection = {
+          mode: "pending",
+          start: gesture.point,
+          path: [gesture.point]
+        };
+        redrawSelection();
+      });
+
+      ui.grid.addEventListener("pointercancel", event => {
+        if (!pointerGesture || pointerGesture.pointerId !== event.pointerId) return;
+        const pendingStart = pointerGesture.pendingStart;
+        pointerGesture = null;
+        state.selection = pendingStart
+          ? { mode: "pending", start: pendingStart, path: [pendingStart] }
+          : null;
+        redrawSelection();
+      });
+
+      ui.cheatButton.addEventListener("click", async () => {
+        if (cheatInProgress) return;
+        const clueOrder = state.config.sortClues ? [...state.config.words].sort() : state.config.words;
+        const word = clueOrder.find(clue => !state.found.has(clue));
+        if (!word) return;
+        const path = state.puzzle.placements.get(word);
+        if (!path) return;
+        const generation = animationGeneration;
+        cheatInProgress = true;
+        ui.cheatButton.disabled = true;
+        clearInvalidSelection();
+        for (let index = 0; index < path.length; index++) {
+          renderFeedbackOutline(path.slice(0, index + 1), "reveal-outline");
+          await new Promise(resolve => window.setTimeout(resolve, 90));
+          if (generation !== animationGeneration) return;
+        }
+        recordFoundWord(word, path);
+        renderFeedbackOutline(null, "reveal-outline");
+        redrawCellStates();
+        cheatInProgress = false;
+        ui.cheatButton.disabled = false;
+      });
+
+      ui.resetButton.addEventListener("click", () => {
+        if (state.found.size > 0 && !window.confirm("Correct guesses will be lost. Reset this puzzle?")) return;
+        animationGeneration++;
+        cheatInProgress = false;
+        successfulDragInProgress = false;
+        pointerGesture = null;
+        ui.cheatButton.disabled = false;
+        state.found = new Set();
+        state.foundOrder = [];
+        state.foundPaths = [];
+        state.selection = null;
+        ui.grid.classList.remove("completion-flash");
+        clearInvalidSelection();
+        ui.playStatus.textContent = "";
+        ui.playError.textContent = "";
+        renderWords();
+        redrawCellStates();
+        renderFoundOutlines();
+        void updatePlayAddress();
+      });
+
+      function showToast(message, anchor) {
+        window.clearTimeout(toastTimer);
+        ui.toast.textContent = message;
+        ui.toast.classList.add("show");
+        const anchorBox = anchor.getBoundingClientRect();
+        const toastBox = ui.toast.getBoundingClientRect();
+        let left;
+        let top;
+        if (anchorBox.left >= toastBox.width + 18) {
+          left = anchorBox.left - toastBox.width - 10;
+          top = anchorBox.top + (anchorBox.height - toastBox.height) / 2;
+        } else {
+          left = Math.min(window.innerWidth - toastBox.width - 8, Math.max(8, anchorBox.right - toastBox.width));
+          top = anchorBox.top - toastBox.height - 8;
+          if (top < 8) top = anchorBox.bottom + 8;
+        }
+        top = Math.min(window.innerHeight - toastBox.height - 8, Math.max(8, top));
+        ui.toast.style.left = `${left}px`;
+        ui.toast.style.top = `${top}px`;
+        toastTimer = window.setTimeout(() => {
+          ui.toast.classList.remove("show");
+        }, 3200);
+      }
+
+      async function copyText(text, input, status, toastMessage, anchor) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            input.focus();
+            input.select();
+            if (!document.execCommand("copy")) throw new Error("Copy failed");
+          }
+          status.textContent = "";
+          showToast(toastMessage, anchor);
+        } catch {
+          input.focus();
+          input.select();
+          status.textContent = "Select the URL and copy it.";
+        }
+      }
+
+      async function refreshAuthorUrl() {
+        const request = ++authorUrlRequest;
+        const config = configFromForm();
+        updatePageTitle(config);
+        const error = validateConfig(config);
+        ui.authorShareStatus.textContent = "";
+        ui.authorShareUrl.value = error ? "Complete the puzzle form first" : "Preparing compressed link";
+        await new Promise(resolve => window.setTimeout(resolve, 320));
+        if (request !== authorUrlRequest) return;
+        try {
+          const editorUrl = await makeStateUrl("edit", config);
+          if (request !== authorUrlRequest) return;
+          if (!ui.authorView.hidden) {
+            window.history.replaceState(null, "", editorUrl);
+            updatePageTitle(config);
+          }
+          if (!error) {
+            const url = await shareUrl(config);
+            if (request === authorUrlRequest) ui.authorShareUrl.value = url;
+          }
+        } catch (problem) {
+          if (request === authorUrlRequest) {
+            ui.authorShareUrl.value = "Unable to create link";
+            ui.authorShareStatus.textContent = problem.message;
+          }
+        }
+      }
+
+      ui.form.addEventListener("submit", async event => {
+        event.preventDefault();
+        showConfigError("", null);
+        await showPlay(configFromForm(), true, true, "preview");
+      });
+
+      ui.clearWordsButton.addEventListener("click", () => {
+        if (ui.words.value && !window.confirm("Clear all words?")) return;
+        ui.words.value = "";
+        ui.words.style.height = "";
+        automaticWordsTextareaHeight = null;
+        wordsTextareaManuallyResized = false;
+        ui.words.dispatchEvent(new Event("input", { bubbles: true }));
+        ui.words.focus();
+      });
+
+      ui.authorSaveButton.addEventListener("click", async () => {
+        const temporary = document.createElement("input");
+        temporary.style.position = "fixed";
+        temporary.style.opacity = "0";
+        document.body.append(temporary);
+        try {
+          const url = await makeStateUrl("edit", configFromForm());
+          temporary.value = url;
+          await copyText(url, temporary, ui.authorShareStatus, "Editor link copied", ui.authorSaveButton);
+        } catch (problem) {
+          ui.authorShareStatus.textContent = problem.message;
+        } finally {
+          temporary.remove();
+        }
+      });
+
+      ui.authorNewPuzzleButton.addEventListener("click", () => {
+        if (!window.confirm("Reset this puzzle? All editor changes will be lost.")) return;
+        startNewPuzzle();
+      });
+      ui.playNewPuzzleButton.addEventListener("click", startNewPuzzle);
+
+      function openHelp(mode) {
+        ui.editorHelp.hidden = mode !== "editor";
+        ui.editablePlayerHelp.hidden = mode !== "editable-player";
+        ui.playerHelp.hidden = mode !== "player";
+        ui.editablePlayerHelpNewPuzzle.hidden = ui.playNewPuzzleButton.hidden;
+        ui.playerHelpNewPuzzle.hidden = ui.playNewPuzzleButton.hidden;
+        const titleId = mode === "editor" ? "editorHelpTitle"
+          : mode === "editable-player" ? "editablePlayerHelpTitle"
+            : "playerHelpTitle";
+        ui.helpDialog.setAttribute("aria-labelledby", titleId);
+        ui.helpDialog.showModal();
+      }
+
+      ui.openHelpButton.addEventListener("click", () => openHelp("editor"));
+      ui.playHelpButton.addEventListener("click", () => {
+        openHelp(ui.editButton.hidden ? "player" : "editable-player");
+      });
+      ui.closeHelpButton.addEventListener("click", () => ui.helpDialog.close());
+      ui.helpDialog.addEventListener("click", event => {
+        if (event.target === ui.helpDialog) ui.helpDialog.close();
+      });
+
+      ui.words.addEventListener("beforeinput", preventInvalidWordInput);
+      ui.words.addEventListener("input", sanitizeEditorWords);
+      ui.words.addEventListener("input", expandWordsTextarea);
+      ui.words.addEventListener("input", updateAutomaticDimensions);
+      for (const [name, input] of [["width", ui.width], ["height", ui.height]]) {
+        const beginManualEntry = () => {
+          if (!automaticDimensions[name]) return;
+          input.value = "";
+          input.classList.remove("auto-derived");
+          automaticDimensions[name] = false;
+          updateAutomaticDimensionLabel();
+        };
+        input.addEventListener("keydown", event => {
+          if (!event.metaKey && !event.ctrlKey && !event.altKey && /^\d$/.test(event.key)) {
+            beginManualEntry();
+          }
+        });
+        input.addEventListener("beforeinput", event => {
+          if (event.inputType.startsWith("insert") && event.data) beginManualEntry();
+        });
+        input.addEventListener("paste", beginManualEntry);
+        input.addEventListener("input", () => {
+          if (writingAutomaticDimensions) return;
+          input.classList.remove("auto-derived");
+          automaticDimensions[name] = input.value === "";
+          updateAutomaticDimensionLabel();
+          if (automaticDimensions.width || automaticDimensions.height) updateAutomaticDimensions();
+        });
+      }
+      ui.form.addEventListener("input", event => {
+        event.target.removeAttribute("aria-invalid");
+        showImmediateDimensionError();
+        refreshAuthorUrl();
+      });
+      ui.editable.addEventListener("input", refreshAuthorUrl);
+      ui.allowNewPuzzle.addEventListener("input", refreshAuthorUrl);
+
+      ui.authorShareButton.addEventListener("click", async () => {
+        const config = configFromForm();
+        const error = validateConfig(config);
+        if (error) {
+          showConfigError(error, config);
+          return;
+        }
+        try {
+          const url = await shareUrl(config);
+          ui.authorShareUrl.value = url;
+          await copyText(
+            url,
+            ui.authorShareUrl,
+            ui.authorShareStatus,
+            config.editable ? "Link to editable puzzle copied" : "Link to puzzle copied",
+            ui.authorShareButton
+          );
+        } catch (problem) {
+          ui.authorShareStatus.textContent = problem.message;
+        }
+      });
+
+      ui.saveButton.addEventListener("click", async () => {
+        const temporary = document.createElement("input");
+        temporary.style.position = "fixed";
+        temporary.style.opacity = "0";
+        document.body.append(temporary);
+        try {
+          const url = await makeStateUrl(state.playUrlMode, state.config, currentProgress());
+          temporary.value = url;
+          await copyText(url, temporary, ui.playStatus, "Saved game link copied", ui.saveButton);
+        } catch (problem) {
+          ui.playStatus.textContent = problem.message;
+        } finally {
+          temporary.remove();
+        }
+      });
+
+      ui.playShareButton.addEventListener("click", async () => {
+        const temporary = document.createElement("input");
+        temporary.style.position = "fixed";
+        temporary.style.opacity = "0";
+        document.body.append(temporary);
+        try {
+          const url = await shareUrl(state.config);
+          temporary.value = url;
+          await copyText(
+            url,
+            temporary,
+            ui.playStatus,
+            state.config.editable ? "Link to editable puzzle copied" : "Link to puzzle copied",
+            ui.playShareButton
+          );
+        } catch (problem) {
+          ui.playStatus.textContent = problem.message;
+        } finally {
+          temporary.remove();
+        }
+      });
+
+      ui.editButton.addEventListener("click", () => {
+        fillForm(state.config);
+        showAuthor();
+      });
+
+      async function applyUrlState(urlState) {
+        if (!urlState) {
+          showAuthor();
+          return;
+        }
+        const { mode, config, progress } = urlState;
+        fillForm(config);
+        if (mode === "edit") {
+          showAuthor();
+          return;
+        }
+        const error = validateConfig(config);
+        if (error) {
+          showAuthor();
+          ui.formError.textContent = `This puzzle link is invalid: ${error}`;
+          return;
+        }
+        const canEdit = mode === "preview" || config.editable;
+        await showPlay(config, false, canEdit, mode, progress);
+      }
+
+      window.addEventListener("popstate", async () => {
+        try {
+          await applyUrlState(await stateFromUrl());
+        } catch (problem) {
+          showAuthor();
+          ui.formError.textContent = `This puzzle link is invalid: ${problem.message}`;
+        }
+      });
+
+      try {
+        const initialState = await stateFromUrl();
+        if (initialState) {
+          await applyUrlState(initialState);
+        } else {
+          updateAutomaticDimensionLabel();
+          await refreshAuthorUrl();
+        }
+      } catch (problem) {
+        showAuthor();
+        ui.formError.textContent = `This puzzle link is invalid: ${problem.message}`;
+      }
+    })();
+  </script>
+</body>
+</html>
